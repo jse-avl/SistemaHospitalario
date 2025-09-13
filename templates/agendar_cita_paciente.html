@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Agendar Cita{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-calendar-plus"></i> Agendar Nueva Cita</h2>
+            <p class="text-muted">Programa tu cita médica</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-form"></i> Datos de la Cita</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="medico_cedula" class="form-label">Médico</label>
+                                <select class="form-select" id="medico_cedula" name="medico_cedula" required>
+                                    <option value="">Seleccionar médico...</option>
+                                    {% for medico in medicos %}
+                                    <option value="{{ medico.cedula }}">Dr. {{ medico.nombre }} - {{ medico.especialidad }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha" class="form-label">Fecha</label>
+                                <input type="date" class="form-control" id="fecha" name="fecha" required min="{{ get_today() }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="hora" class="form-label">Hora</label>
+                                <input type="time" class="form-control" id="hora" name="hora" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="motivo" class="form-label">Motivo de la consulta</label>
+                                <input type="text" class="form-control" id="motivo" name="motivo" placeholder="Describe brevemente el motivo">
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Agendar Cita</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Información</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Horarios de atención:</strong></p>
+                    <ul>
+                        <li>Lunes a Viernes: 8:00 AM - 6:00 PM</li>
+                        <li>Sábados: 8:00 AM - 12:00 PM</li>
+                    </ul>
+                    <p><strong>Nota:</strong> Las citas deben agendarse con al menos 24 horas de anticipación.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

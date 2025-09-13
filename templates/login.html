@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Sistema Hospitalario - Acceso{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <div class="login-card card fade-in">
+                    <div class="login-header">
+                        <i class="fas fa-hospital"></i>
+                        <h3>Sistema Hospitalario</h3>
+                        <p class="mb-0 opacity-75">Gestión médica integral</p>
+                    </div>
+                    <div class="login-body">
+                        <!-- Pestañas para Login y Registro -->
+                        <ul class="nav nav-tabs" id="authTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">
+                                    <i class="fas fa-user-plus me-2"></i>Registrarse como Paciente
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="authTabsContent">
+                            <!-- Tab de Login -->
+                            <div class="tab-pane fade show active" id="login" role="tabpanel">
+                                <form method="POST" action="{{ url_for('login') }}" class="mt-4">
+                                    <div class="mb-4">
+                                        <label for="cedula" class="form-label">
+                                            <i class="fas fa-id-card me-2"></i>Cédula
+                                        </label>
+                                        <input type="text" class="form-control" id="cedula" name="cedula" required placeholder="Ingresa tu número de cédula">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="password" class="form-label">
+                                            <i class="fas fa-lock me-2"></i>Contraseña
+                                        </label>
+                                        <input type="password" class="form-control" id="password" name="password" required placeholder="Ingresa tu contraseña">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                                    </button>
+                                </form>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        ¿Eres paciente y no tienes cuenta? 
+                                        <a href="#" onclick="document.getElementById('register-tab').click()" class="text-decoration-none">Regístrate aquí</a>
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab de Registro -->
+                            <div class="tab-pane fade" id="register" role="tabpanel">
+                                <form method="POST" action="{{ url_for('register_patient') }}" class="mt-4">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="reg_cedula" class="form-label">
+                                                    <i class="fas fa-id-card me-2"></i>Cédula *
+                                                </label>
+                                                <input type="text" class="form-control" id="reg_cedula" name="cedula" required placeholder="Número de cédula">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="reg_nombre" class="form-label">
+                                                    <i class="fas fa-user me-2"></i>Nombre *
+                                                </label>
+                                                <input type="text" class="form-control" id="reg_nombre" name="nombre" required placeholder="Tu nombre">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="reg_apellido" class="form-label">
+                                                    <i class="fas fa-user me-2"></i>Apellido *
+                                                </label>
+                                                <input type="text" class="form-control" id="reg_apellido" name="apellido" required placeholder="Tu apellido">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="reg_fecha_nacimiento" class="form-label">
+                                                    <i class="fas fa-calendar me-2"></i>Fecha de Nacimiento *
+                                                </label>
+                                                <input type="date" class="form-control" id="reg_fecha_nacimiento" name="fecha_nacimiento" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="reg_telefono" class="form-label">
+                                                    <i class="fas fa-phone me-2"></i>Teléfono
+                                                </label>
+                                                <input type="tel" class="form-control" id="reg_telefono" name="telefono" placeholder="Número de teléfono">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="reg_email" class="form-label">
+                                                    <i class="fas fa-envelope me-2"></i>Email *
+                                                </label>
+                                                <input type="email" class="form-control" id="reg_email" name="email" required placeholder="tu@email.com">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reg_direccion" class="form-label">
+                                            <i class="fas fa-map-marker-alt me-2"></i>Dirección
+                                        </label>
+                                        <textarea class="form-control" id="reg_direccion" name="direccion" rows="2" placeholder="Tu dirección completa"></textarea>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="reg_password" class="form-label">
+                                                    <i class="fas fa-lock me-2"></i>Contraseña *
+                                                </label>
+                                                <input type="password" class="form-control" id="reg_password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="reg_confirm_password" class="form-label">
+                                                    <i class="fas fa-lock me-2"></i>Confirmar Contraseña *
+                                                </label>
+                                                <input type="password" class="form-control" id="reg_confirm_password" name="confirm_password" required minlength="6" placeholder="Repite la contraseña">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+                                    </button>
+                                </form>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        ¿Ya tienes cuenta? 
+                                        <a href="#" onclick="document.getElementById('login-tab').click()" class="text-decoration-none">Inicia sesión aquí</a>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación mejorada de contraseñas
+document.addEventListener('DOMContentLoaded', function() {
+    const registerForm = document.querySelector('#register form');
+    const passwordInput = document.getElementById('reg_password');
+    const confirmPasswordInput = document.getElementById('reg_confirm_password');
+    
+    // Validación en tiempo real
+    confirmPasswordInput.addEventListener('input', function() {
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            confirmPasswordInput.setCustomValidity('Las contraseñas no coinciden');
+        } else {
+            confirmPasswordInput.setCustomValidity('');
+        }
+    });
+    
+    // Validación al enviar
+    registerForm.addEventListener('submit', function(e) {
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            confirmPasswordInput.focus();
+            confirmPasswordInput.setCustomValidity('Las contraseñas no coinciden');
+            confirmPasswordInput.reportValidity();
+        }
+    });
+    
+    // Animación de pestañas
+    const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+    tabButtons.forEach(button => {
+        button.addEventListener('shown.bs.tab', function() {
+            const targetPane = document.querySelector(this.getAttribute('data-bs-target'));
+            targetPane.style.animation = 'none';
+            targetPane.offsetHeight; // Trigger reflow
+            targetPane.style.animation = 'slideIn 0.4s ease-out';
+        });
+    });
+});
+</script>
+{% endblock %}

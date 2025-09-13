@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema Hospitalario{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+            <small class="text-muted">- {{ session.user_type.title() }}</small>
+        </h1>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.total_pacientes }}</h4>
+                        <p class="mb-0">Pacientes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.total_medicos }}</h4>
+                        <p class="mb-0">Médicos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-md fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.total_citas }}</h4>
+                        <p class="mb-0">Total Citas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.citas_hoy }}</h4>
+                        <p class="mb-0">Citas Hoy</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-day fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Próximas Citas -->
+{% if proximas_citas %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock"></i> 
+                    {% if session.user_type == 'medico' %}
+                        Mis Próximas Citas
+                    {% else %}
+                        Próximas Citas del Sistema
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Paciente</th>
+                                {% if session.user_type == 'admin' %}
+                                <th>Médico</th>
+                                {% endif %}
+                                <th>Motivo</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cita in proximas_citas %}
+                            <tr>
+                                <td>{{ cita.fecha }}</td>
+                                <td>{{ cita.hora }}</td>
+                                <td>{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</td>
+                                {% if session.user_type == 'admin' %}
+                                <td>{{ cita.medico_nombre }} {{ cita.medico_apellido }}</td>
+                                {% endif %}
+                                <td>{{ cita.motivo }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if cita.estado == 'Programada' else 'secondary' }}">
+                                        {{ cita.estado }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Accesos Rápidos -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h4><i class="fas fa-bolt"></i> Accesos Rápidos</h4>
+    </div>
+    
+    {% if session.user_type == 'admin' %}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                <h5>Registrar Paciente</h5>
+                <p class="text-muted">Agregar nuevo paciente al sistema</p>
+                <a href="{{ url_for('pacientes') }}" class="btn btn-primary">Ir a Pacientes</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-plus fa-3x text-success mb-3"></i>
+                <h5>Agendar Cita</h5>
+                <p class="text-muted">Programar nueva cita médica</p>
+                <a href="{{ url_for('citas') }}" class="btn btn-success">Agendar</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-list fa-3x text-info mb-3"></i>
+                <h5>Ver Citas</h5>
+                <p class="text-muted">Consultar citas programadas</p>
+                <a href="{{ url_for('citas') }}" class="btn btn-info">Ver Citas</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

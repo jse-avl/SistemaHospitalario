@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Citas - Sistema Hospitalario{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-calendar-alt"></i> Gestión de Citas</h1>
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-primary" id="vistaTabla" onclick="cambiarVista('tabla')">
+                    <i class="fas fa-list"></i> Tabla
+                </button>
+                <button class="btn btn-primary" id="vistaCalendario" onclick="cambiarVista('calendario')">
+                    <i class="fas fa-calendar"></i> Calendario
+                </button>
+                {% if session.user_type in ['admin', 'paciente'] %}
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#nuevaCitaModal">
+                    <i class="fas fa-plus"></i> Nueva Cita
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros y Búsqueda -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Buscar por Cédula</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="buscarCedula" placeholder="Número de cédula..." onkeyup="filtrarPorCedula()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Médico</label>
+                        <select class="form-select" id="filtroMedico" onchange="aplicarFiltros()">
+                            <option value="">Todos los médicos</option>
+                            {% for medico in medicos %}
+                            <option value="{{ medico.cedula }}">{{ medico.nombre }} {{ medico.apellido }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Especialidad</label>
+                        <select class="form-select" id="filtroEspecialidad" onchange="aplicarFiltros()">
+                            <option value="">Todas las especialidades</option>
+                            {% for especialidad in especialidades %}
+                            <option value="{{ especialidad }}">{{ especialidad }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="filtroEstado" onchange="aplicarFiltros()">
+                            <option value="">Todos los estados</option>
+                            <option value="Programada">Programada</option>
+                            <option value="Completada">Completada</option>
+                            <option value="Cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-outline-secondary" onclick="limpiarFiltros()">
+                            <i class="fas fa-eraser"></i> Limpiar Filtros
+                        </button>
+                        <button class="btn btn-outline-success" onclick="exportarPDF()">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                        <button class="btn btn-outline-success" onclick="exportarExcel()">
+                            <i class="fas fa-file-excel"></i> Exportar Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vista de Calendario -->
+<div id="vistaCalendarioContainer" class="row" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary" onclick="cambiarMes(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-outline-primary" id="mesActual"></button>
+                    <button class="btn btn-outline-primary" onclick="cambiarMes(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="vistaCalendario('mes')" id="btnMes">Mes</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="vistaCalendario('semana')" id="btnSemana">Semana</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="vistaCalendario('dia')" id="btnDia">Día</button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="calendario"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                {% if session.user_type != 'paciente' %}
+                                <th>Paciente</th>
+                                {% endif %}
+                                {% if session.user_type != 'medico' %}
+                                <th>Médico</th>
+                                {% endif %}
+                                <th>Motivo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cita in citas %}
+                            <tr>
+                                <td>{{ cita.fecha }}</td>
+                                <td>{{ cita.hora }}</td>
+                                {% if session.user_type != 'paciente' %}
+                                <td>{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</td>
+                                {% endif %}
+                                {% if session.user_type != 'medico' %}
+                                <td>
+                                    {{ cita.medico_nombre }} {{ cita.medico_apellido }}
+                                    {% if cita.especialidad %}
+                                    <br><small class="text-muted">{{ cita.especialidad }}</small>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                                <td>{{ cita.motivo }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if cita.estado == 'Programada' else 'secondary' }}">
+                                        {{ cita.estado }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if cita.estado == 'Programada' %}
+                                    <form method="POST" action="{{ url_for('cancelar_cita', cita_id=cita.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                onclick="return confirm('¿Está seguro de cancelar esta cita?')">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Cita -->
+{% if session.user_type in ['admin', 'paciente'] %}
+<div class="modal fade" id="nuevaCitaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agendar Nueva Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('nueva_cita') }}" id="formNuevaCita">
+                <div class="modal-body">
+                    {% if session.user_type == 'admin' %}
+                    <div class="mb-3">
+                        <label for="paciente_cedula" class="form-label">Paciente *</label>
+                        <select class="form-select" id="paciente_cedula" name="paciente_cedula" required>
+                            <option value="">Seleccione un paciente</option>
+                            {% for paciente in pacientes %}
+                            <option value="{{ paciente.cedula }}">{{ paciente.nombre }} {{ paciente.apellido }} ({{ paciente.cedula }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="medico_cedula" class="form-label">Médico *</label>
+                        <select class="form-select" id="medico_cedula" name="medico_cedula" required>
+                            <option value="">Seleccione un médico</option>
+                            {% for medico in medicos %}
+                            <option value="{{ medico.cedula }}">{{ medico.nombre }} {{ medico.apellido }} - {{ medico.especialidad }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fecha" class="form-label">Fecha *</label>
+                                <input type="date" class="form-control" id="fecha" name="fecha" required min="{{ get_today() }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="hora" class="form-label">Hora *</label>
+                                <input type="time" class="form-control" id="hora" name="hora" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="motivo" class="form-label">Motivo de la consulta *</label>
+                        <textarea class="form-control" id="motivo" name="motivo" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Agendar Cita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
